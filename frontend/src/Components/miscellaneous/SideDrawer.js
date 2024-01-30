@@ -28,7 +28,8 @@ import { useDisclosure } from '@chakra-ui/hooks';
 import ChatLoading from '../ChatLoading';
 import axios from 'axios';
 import UserListItem from '../UserAvatar/UserListItem';
-import {Input} from "@chakra-ui/input"
+import { Input } from "@chakra-ui/input";
+import { Spinner } from "@chakra-ui/spinner";
 
 
 function SideDrawer() {
@@ -91,7 +92,8 @@ function SideDrawer() {
           Authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.post(`/api/chat`, { userId }, config);
+             const { data } = await axios.post(`/api/chat`, { userId }, config);
+      if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
       setSelectedChat(data);
       setLoadingChat(false);
       onClose();
@@ -186,11 +188,13 @@ function SideDrawer() {
                             
                               ))
                    
-                        )}
+                            )}
+                        {loadingChat && <Spinner ml="auto" d="flex" />}
                 </DrawerBody>
                 </DrawerContent>
                 
             </Drawer>
+
         </>
     );
 };
