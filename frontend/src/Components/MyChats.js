@@ -56,7 +56,7 @@ const MyChats = ({fetchAgain}) => {
       width={{ base: "100%", md: "31%" }}
       borderRadius="lg"
       borderWidth="1px"
-      height={"720px"}
+      height={"700px"}
       
     >
       <Box
