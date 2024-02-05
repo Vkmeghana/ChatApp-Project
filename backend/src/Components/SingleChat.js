@@ -10,34 +10,20 @@ import axios from 'axios';
 import "./styles.css";
 import ScrollableChat from './ScrollableChat';
 import io from "socket.io-client";
-import Lottie from "react-lottie";
-import animationData from "../animation/typing.json";
 
 const ENDPOINT = "http://localhost:5000";
 var socket, selectedChatCompare;
 
 
-const SingleChat = () => {
-  const [messages, setMessages] = useState([]);
+const SingleChat = (fetchAgain, setFetchAgain) => {
+
+     const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
-  const [socketConnected, setSocketConnected] = useState(false);
-  const [typing, setTyping] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
+    
+    const { user, selectedChat, setSelectedChat } = ChatState();
   const toast = useToast();
-  const [fetchAgain, setFetchAgain] = useState([]);
-
-  const defaultOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: animationData,
-    rendererSettings: {
-      preserveAspectRatio: "xMidYMid slice",
-    },
-  };
-  const { selectedChat, setSelectedChat, user, notification, setNotification } =
-    ChatState();
-
+  const [socketConnected, setSocketConnected] = useState(false);
 
   const fetchMessages = async () => {
     if (!selectedChat) return;
@@ -74,33 +60,25 @@ const SingleChat = () => {
 
   useEffect(() => {
     socket = io(ENDPOINT);
-    socket.emit("setup", user);
-    socket.on("connected", () => setSocketConnected(true));
-    socket.on("typing", () => setIsTyping(true));
-    socket.on("stop typing", () => setIsTyping(false));
-
-    // eslint-disable-next-line
+    socket.emit("setup", user); 
+    socket.on("connection", () => setSocketConnected(true));
   }, []);
-
+  
+  
   useEffect(() => {
     fetchMessages();
-
-    selectedChatCompare = selectedChat;
-    // eslint-disable-next-line
+    selectedChatCompare= selectedChat;
   }, [selectedChat]);
+  
 
   useEffect(() => {
-    socket.on("message recieved", (newMessageRecieved) => {
+    socket.on('message recieved', (newMessageRecieved) => {
       if (
         !selectedChatCompare || // if chat is not selected or doesn't match current chat
         selectedChatCompare._id !== newMessageRecieved.chat._id
-      ) {
-        if (!notification.includes(newMessageRecieved)) {
-          setNotification([newMessageRecieved, ...notification]);
-          setFetchAgain(!fetchAgain);
-          
-        }
-      } else {
+      ) 
+      {/*notifications*/ }
+      else {
         setMessages([...messages, newMessageRecieved]);
       }
     });
@@ -108,10 +86,8 @@ const SingleChat = () => {
 
 
     const sendMessage = async(event) => {
-      if (event.key === "Enter" && newMessage) {
-        socket.emit("stop Typing", selectedChat._id);
-        try {
-        
+        if (event.key === "Enter" && newMessage) {
+             try {
         const config = {
           headers: {
             "Content-type": "application/json",
@@ -146,26 +122,12 @@ const SingleChat = () => {
   
     
 
-    const typingHandler = (e) => {
-    setNewMessage(e.target.value);
+    const typingHandler = (e) => { 
+        setNewMessage(e.target.value);
+        //Typing Indicator Logic
+    };
 
-    if (!socketConnected) return;
 
-    if (!typing) {
-      setTyping(true);
-      socket.emit("typing", selectedChat._id);
-    }
-    let lastTypingTime = new Date().getTime();
-    var timerLength = 3000;
-    setTimeout(() => {
-      var timeNow = new Date().getTime();
-      var timeDiff = timeNow - lastTypingTime;
-      if (timeDiff >= timerLength && typing) {
-        socket.emit("stop typing", selectedChat._id);
-        setTyping(false);
-      }
-    }, timerLength);
-  };
     return ( 
         <>
             {
@@ -237,18 +199,18 @@ const SingleChat = () => {
               isRequired
               mt={3}
             >
-              {isTyping ? 
+              {/*{istyping ? (
                 <div>
-                 <Lottie
+                  <Lottie
                     options={defaultOptions}
                     // height={50}
                     width={70}
                     style={{ marginBottom: 15, marginLeft: 0 }}
                   />
                 </div>
-              : (
+              ) : (
                 <></>
-              )}
+              )}*/}
               <Input
                 variant="filled"
                 bg="#E0E0E0"
